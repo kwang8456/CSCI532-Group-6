@@ -74,6 +74,7 @@ def evaluate(msg: Message, context: Context):
         "eval_loss": eval_loss,
         "eval_acc": eval_acc,
         "num-examples": len(valloader.dataset),
+        "client_id": partition_id,
     }
     metric_record = MetricRecord(metrics)
     content = RecordDict({"metrics": metric_record})

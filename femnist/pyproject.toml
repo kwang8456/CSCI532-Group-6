@@ -18,6 +18,8 @@ dependencies = [
     "flwr-datasets[vision]>=0.5.0",
     "torch==2.7.1",
     "torchvision==0.22.1",
+    "pandas>=2.0.0",
+    "matplotlib>=3.7.0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -33,7 +35,7 @@ clientapp = "femnist.client_app:app"
 
 # Custom config values accessible via `context.run_config`
 [tool.flwr.app.config]
-num-server-rounds = 50
+num-server-rounds = 3
 fraction-train = 1.0
 local-epochs = 5
 lr = 0.001
