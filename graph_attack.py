@@ -7,7 +7,7 @@ folder = "femnist/results/attack/"
 attack_levels = [10, 25, 50, 75, 100]
 atk_client = [ "2", "5", "7", "10" ]
 
-df = pd.read_csv("femnist/results/attack/fl_metrics_10.csv")
+df = pd.read_csv("femnist/results/attack/fl_metrics_100.csv")
 
 rounds = df['round'].unique()
 
@@ -31,13 +31,13 @@ for idx, c in enumerate(atk_client):
              label = f'Client {c}', 
              color = colors(idx) )
 
-plt.title('Client Evaluation Loss Per Round')
+plt.title('Client Evaluation Loss Per Round For Attack 100')
 plt.xlabel('Round')
 plt.ylabel('Evaluation Loss')
 plt.legend(title = 'Client ID', bbox_to_anchor = (1.25, 1), loc = 'upper right')
 plt.tight_layout()
 plt.grid(True)
-plt.savefig('femnist/results/attack/Client Evaluation Loss Per Round.png')
+plt.savefig('femnist/results/attack/Client Evaluation Loss Per Round For Attack 100.png')
 plt.show()
 
 plt.figure( figsize = (8, 8) )
@@ -79,13 +79,13 @@ for idx, c in enumerate(atk_client):
              label = f'Client {c}', 
              color = colors(idx) )
 
-plt.title('Client Evaluation Accuracy Per Round')
+plt.title('Client Evaluation Accuracy Per Round For Attack 100')
 plt.xlabel('Round')
 plt.ylabel('Evaluation Accuracy')
 plt.legend(title = 'Client ID', bbox_to_anchor = (1.25, 1), loc = 'upper right')
 plt.tight_layout()
 plt.grid(True)
-plt.savefig('femnist/results/attack/Client Evaluation Accuracy Per Round.png')
+plt.savefig('femnist/results/attack/Client Evaluation Accuracy Per Round For Attack 100.png')
 plt.show()
 
 plt.figure( figsize = (8, 8) )
