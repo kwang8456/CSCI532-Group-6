@@ -12,6 +12,7 @@ from torch.utils.data import Dataset
 # from flwr_datasets.partitioner import IidPartitioner
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, Normalize, ToTensor
+from flwr.app import Context
 
 
 class Net(nn.Module):
@@ -107,12 +108,25 @@ def apply_transforms(batch):
     return batch
 
 
-def load_data(partition_id: int, num_partitions: int, data_root: str = "femnist/dataset"):
+def load_data(partition_id: int, num_partitions: int, context: Context = None):
     """Load partition FEMNIST data from local filesystem."""
+    
+    # Get attack parameters from context (preferred) or environment variables (fallback)
+    if context is not None:
+        attack = context.run_config.get("attack-mode", False)
+        flip_pct = context.run_config.get("flip-pct", 0)
+    else:
+        attack = os.getenv("ATTACK_MODE", "false").lower() == "true"
+        flip_pct = int(os.getenv("FLIP_PCT", "0"))
+    
+    # Determine data root - REMOVE the "femnist/" prefix
+    if attack:
+        data_root = f"dataset_attack_{flip_pct}"  # Changed from femnist/dataset_attack_{flip_pct}
+    else:
+        data_root = "dataset"  # Changed from femnist/dataset
     
     # If data_root is relative, make it absolute from current working directory
     if not os.path.isabs(data_root):
-        # When running with flwr, CWD is the project root
         cwd_path = os.path.join(os.getcwd(), data_root)
         
         if os.path.exists(cwd_path):
@@ -120,20 +134,17 @@ def load_data(partition_id: int, num_partitions: int, data_root: str = "femnist/
         else:
             # Fallback: try relative to this script
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            alt_path = os.path.join(script_dir, "..", "dataset")
+            alt_path = os.path.join(script_dir, "..", data_root)
             if os.path.exists(alt_path):
                 data_root = os.path.abspath(alt_path)
             else:
                 raise ValueError(f"Cannot find dataset. Tried:\n  {cwd_path}\n  {alt_path}")
     
-    # Rest of the function stays the same...
     client_folder = os.path.join(data_root, f"client_{partition_id}")
+    print(f"[load_data] client={partition_id} loading data from: {client_folder}")
+    print(f"[load_data] attack_mode={attack}, flip_pct={flip_pct}")  # Debug print
     
     if not os.path.exists(client_folder):
-        print(f"❌ ERROR: Client folder not found!")
-        print(f"   Looking for: {client_folder}")
-        print(f"   data_root: {data_root}")
-        print(f"   Current working directory: {os.getcwd()}")
         raise ValueError(f"Client folder not found: {client_folder}")
     
     full_dataset = FEMNISTDataset(client_folder, transform=pytorch_transforms)
