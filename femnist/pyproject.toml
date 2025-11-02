@@ -43,6 +43,13 @@ lr = 0.001
 attack-mode = false
 flip-pct = 0
 
+# PID-specific parameters (NEW for Part 3)
+use-pid = false
+pid-threshold = 2.0
+kp = 1.0
+ki = 0.05
+kd = 0.5
+
 # Default federation to use when running the app
 [tool.flwr.federations]
 default = "local-simulation"
