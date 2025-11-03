@@ -294,18 +294,51 @@ def main(grid: Grid, context: Context) -> None:
         ])
     
     # Custom aggregator for evaluation metrics
+    # def evaluate_metrics_agg(records, weighting_key):
+    #     """Aggregates client evaluation metrics and logs per-client + average to CSV."""
+    #     total_weight = 0.0
+    #     weighted_loss = 0.0
+    #     weighted_acc = 0.0
+    #     round_number = getattr(evaluate_metrics_agg, "round", 1)
+        
+    #     with open(csv_path, "a", newline="") as f:
+    #         writer = csv.writer(f)
+    #         for record in records:
+    #             metrics = list(record.metric_records.values())[0]
+    #             client_id = metrics.get("client_id", f"client_{len(metrics)}")
+    #             loss = float(metrics.get("eval_loss", 0.0))
+    #             acc = float(metrics.get("eval_acc", 0.0))
+    #             ne = float(metrics.get(weighting_key, 1))
+    #             writer.writerow([round_number, client_id, loss, acc, "", ""])
+    #             weighted_loss += loss * ne
+    #             weighted_acc += acc * ne
+    #             total_weight += ne
+            
+    #         avg_loss = weighted_loss / total_weight if total_weight else 0.0
+    #         avg_acc = weighted_acc / total_weight if total_weight else 0.0
+    #         writer.writerow([round_number, "avg", "", "", avg_loss, avg_acc])
+        
+    #     evaluate_metrics_agg.round = round_number + 1
+        
+    #     agg_metrics = MetricRecord({"eval_loss": avg_loss, "eval_acc": avg_acc})
+    #     return agg_metrics
+    
     def evaluate_metrics_agg(records, weighting_key):
-        """Aggregates client evaluation metrics and logs per-client + average to CSV."""
         total_weight = 0.0
         weighted_loss = 0.0
         weighted_acc = 0.0
         round_number = getattr(evaluate_metrics_agg, "round", 1)
-        
+
         with open(csv_path, "a", newline="") as f:
             writer = csv.writer(f)
             for record in records:
                 metrics = list(record.metric_records.values())[0]
-                client_id = metrics.get("client_id", f"client_{len(metrics)}")
+                client_id = f"client_{metrics.get('client_id', 'unknown')}"
+                
+                # skip excl client
+                if hasattr(strategy, "excluded_clients") and client_id in strategy.excluded_clients:
+                    continue
+                
                 loss = float(metrics.get("eval_loss", 0.0))
                 acc = float(metrics.get("eval_acc", 0.0))
                 ne = float(metrics.get(weighting_key, 1))
@@ -313,16 +346,15 @@ def main(grid: Grid, context: Context) -> None:
                 weighted_loss += loss * ne
                 weighted_acc += acc * ne
                 total_weight += ne
-            
+
             avg_loss = weighted_loss / total_weight if total_weight else 0.0
             avg_acc = weighted_acc / total_weight if total_weight else 0.0
             writer.writerow([round_number, "avg", "", "", avg_loss, avg_acc])
-        
+
         evaluate_metrics_agg.round = round_number + 1
-        
-        agg_metrics = MetricRecord({"eval_loss": avg_loss, "eval_acc": avg_acc})
-        return agg_metrics
-    
+        return MetricRecord({"eval_loss": avg_loss, "eval_acc": avg_acc})
+
+
     # Initialize global model
     global_model = Net()
     arrays = ArrayRecord(global_model.state_dict())
