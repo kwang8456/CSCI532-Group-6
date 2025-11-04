@@ -190,19 +190,40 @@ for idx, level in enumerate(attack_levels):
             color = colors(idx) 
         )
 
-        plt.plot(
-            pid_average_df['round'], 
-            pid_average_df['avg_acc'], 
-            marker = 'o', 
-            label = f"{level}% Evaluation Accuracy",
-            color = colors(idx + 5) 
-        )
-
-plt.title('Loss and Accuracy Dependence on the Attack Severity')
+plt.title('Loss Dependence on the Attack Severity')
 plt.xlabel('Round')
-plt.ylabel('Average Accuracy and Loss')
+plt.ylabel('Average Loss')
 plt.legend(title = "Attack Severity", bbox_to_anchor = (1.25, 1), loc = "upper right")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(f"{folder}/Loss and Accuracy Dependence (PID).png")
+plt.savefig(f"{folder}/Loss Dependence (PID).png")
+plt.show()
+
+plt.figure( figsize = (12, 8) )
+
+for idx, level in enumerate(attack_levels):
+    file_path = f"{folder}/fl_metrics_pid_{level}.csv"
+
+    try:
+        df = pd.read_csv(file_path)
+        avg_df = df[df["client_id"] == "avg"]  # only average metrics
+    except Exception as e:
+        print(f"Skipping {file_path}: {e}")
+
+    if not avg_df.empty:
+        plt.plot(
+            avg_df['round'], 
+            avg_df['avg_acc'], 
+            marker = 'o', 
+            label = f"{level}% Evaluation Accuracy",
+            color = colors(idx) 
+        )
+
+plt.title('Accuracy Dependence on the Attack Severity')
+plt.xlabel('Round')
+plt.ylabel('Average Accuracy')
+plt.legend(title = "Attack Severity", bbox_to_anchor = (1.25, 1), loc = "upper right")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig(f"{folder}/Accuracy Dependence (PID).png")
 plt.show()
