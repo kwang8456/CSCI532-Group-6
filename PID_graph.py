@@ -173,7 +173,7 @@ plt.show()
 plt.figure( figsize = (12, 8) )
 
 for idx, level in enumerate(attack_levels):
-    file_path = f"{folder}/fl_metrics_{level}.csv"
+    file_path = f"{folder}/fl_metrics_pid_{level}.csv"
 
     try:
         df = pd.read_csv(file_path)
